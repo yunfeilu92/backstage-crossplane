@@ -1,0 +1,18 @@
+apiVersion: apigateway.aws.upbound.io/v1beta1
+kind: Method
+metadata:
+  labels:
+     application: crossplane-api
+  name: crossplane-api-method
+spec:
+  forProvider:
+    authorization: NONE
+    httpMethod: GET
+    region: us-east-1
+    # resourceIdSelector:
+    #   matchLabels:
+    #     testing.upbound.io/example-name: integration
+    restApiIdSelector:
+      matchLabels:
+        application: crossplane-api
+  

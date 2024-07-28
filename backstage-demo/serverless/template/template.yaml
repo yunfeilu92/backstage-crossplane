@@ -1,0 +1,88 @@
+apiVersion: scaffolder.backstage.io/v1beta3
+kind: Template
+metadata:
+  name: create-serverless-app
+  title: Create a serverless application
+  description: Create a serverless application 
+  tags: ['recommended']
+spec:
+  owner: guests
+  type: service
+  parameters:
+    - title: Serverless Application Creation
+      required:
+         - appName
+         - region
+         - appSize
+         - appLanguage    
+      properties:
+        appName:
+          title: App's unique name.
+          type: string
+          description: Name of the serverless application that you want to create.
+          ui:autofocus: true
+          ui:options:
+            rows: 5
+        region:
+          title:  Region You want to deploy your serverless app
+          type: string
+          description: Name of the region where you want to deploy your application
+          enum: 
+            - US
+            - EU
+          # ui:autofocus: true
+        appSize:
+          title: Size of the application
+          type: string
+          description: Size of the application that you want to deploy, for eg:- small, medium, large etc.
+          enum:
+            - small
+            - medium
+            - large
+        appLanguage:
+          title: Language of the application
+          type: string
+          description: Language of the application that you want to deploy, for eg:- python, nodejs etc.
+          enum:
+            - python
+            - nodejs
+            - java
+
+  steps:
+# Getting the all the files/details from the template
+    - id: fetch-base
+      name: Fetching Details from content folder
+      action: fetch:template
+      input:
+        url: ./content  # Location of the content directory where catlog-info.yaml file is present for the template
+        values:
+          appName: ${{ parameters.appName}}
+          region: ${{ parameters.region}}
+          appSize: ${{ parameters.appSize}}
+          appLanguage: ${{ parameters.appLanguage}}
+    - id: renameFiles
+      action: fs:rename
+      name: rename files
+      input: 
+        files: 
+          - from: Serverless_claim.yaml
+            to: ${{ parameters.appName }}_claim.yaml
+
+# Publish the content of the current working directory to our github directory
+    - id: publish
+      name: Publishing Details
+      action: publish:github:pull-request
+      input:
+        allowedHosts: ['github.com']
+        description: This repo is to create a serverless app ${{ parameters.appName }} using backstage.
+        repoUrl: github.com?repo=crossplane-repo1&owner=yunfeilu92
+        branchName: ${{ parameters.appName }}
+        title: ${{ parameters.appName }}
+        update: true
+
+
+# Output links  are displayed to the user after the template execution.
+  output:
+    links:
+      - title: Repository
+        url: ${{ steps['publish'].output.remoteUrl }}

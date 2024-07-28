@@ -1,0 +1,191 @@
+apiVersion: apiextensions.crossplane.io/v1
+kind: Composition
+metadata:
+  name: apigateway
+spec:
+  patchSets:
+    - name: my-patchset
+      patches:
+      - type: FromCompositeFieldPath
+        fromFieldPath: spec.region
+        toFieldPath: spec.forProvider.region
+        transforms: 
+        - type: map
+          map: 
+            US: us-east-1
+            EU: eu-central-1
+  compositeTypeRef:
+    apiVersion: yunfeilu.demo/v1alpha1
+    kind: Serverless
+  resources:
+    - name: restAPI
+      base:
+        apiVersion: apigateway.aws.upbound.io/v1beta1
+        kind: RestAPI
+        spec:
+          forProvider:
+            name: crossplane-api
+            endpointConfiguration: 
+              - types: 
+                - REGIONAL
+      patches:
+      - type: PatchSet
+        patchSetName: my-patchset
+      - type: ToCompositeFieldPath
+        fromFieldPath: status.atProvider.rootResourceId
+        toFieldPath: status.rootResourceId
+    - name: APIMethod
+      base: 
+        apiVersion: apigateway.aws.upbound.io/v1beta1
+        kind: Method
+        spec:
+          forProvider:
+            authorization: NONE
+            httpMethod: GET
+            restApiIdSelector:
+              matchControllerRef: true
+      patches:
+      - type: PatchSet
+        patchSetName: my-patchset
+      - type: FromCompositeFieldPath
+        fromFieldPath: status.rootResourceId
+        toFieldPath: spec.forProvider.resourceId
+    - name: APIIntegration
+      base:
+        apiVersion: apigateway.aws.upbound.io/v1beta1
+        kind: Integration
+        spec:
+          forProvider:
+            type: AWS_PROXY
+            integrationHttpMethod: POST
+            httpMethodSelector:
+              matchControllerRef: true
+            restApiIdSelector:
+              matchControllerRef: true
+            uriSelector:
+              matchControllerRef: true
+      patches:
+      - type: PatchSet
+        patchSetName: my-patchset
+      - type: FromCompositeFieldPath
+        fromFieldPath: status.rootResourceId
+        toFieldPath: spec.forProvider.resourceId
+    - name: APIStage
+      base:
+        apiVersion: apigateway.aws.upbound.io/v1beta1
+        kind: Stage
+        spec:
+          forProvider:
+            deploymentIdSelector:
+              matchControllerRef: true
+            restApiIdSelector:
+              matchControllerRef: true
+            stageName: beta
+      patches:      
+      - type: PatchSet
+        patchSetName: my-patchset
+      - type: ToCompositeFieldPath
+        fromFieldPath: status.atProvider.invokeUrl
+        toFieldPath: status.apiEndpoint
+    - name: APIDeployment
+      base:
+        apiVersion: apigateway.aws.upbound.io/v1beta1
+        kind: Deployment
+        spec:
+          forProvider:
+            restApiIdSelector:
+              matchControllerRef: true
+      patches:      
+      - type: PatchSet
+        patchSetName: my-patchset
+    - name: Lambda
+      base:
+        apiVersion: lambda.aws.upbound.io/v1beta1
+        kind: Function
+        spec:
+          forProvider:
+            handler: lambda_function.lambda_handler
+            packageType: Zip
+            memorySize: 128
+            roleSelector:
+              matchControllerRef: true
+            s3BucketSelector: 
+              matchControllerRef: true
+            s3Key: lambda-code.zip
+            timeout: 60
+      patches:      
+      - type: PatchSet
+        patchSetName: my-patchset
+      - type: FromCompositeFieldPath
+        fromFieldPath: spec.language
+        toFieldPath: spec.forProvider.runtime
+        transforms: 
+          - type: map
+            map: 
+              java: java11
+              python: python3.9
+              nodejs: nodejs20.x
+      - type: FromCompositeFieldPath
+        fromFieldPath: spec.memorySize
+        toFieldPath: spec.forProvider.memorySize
+        transforms: 
+          - type: map
+            map: 
+              small: 128
+              medium: 512
+              large: 1024
+    - name: LambdaResourcePermission
+      base: 
+        apiVersion: lambda.aws.upbound.io/v1beta1
+        kind: Permission
+        spec:
+          forProvider:
+            action: lambda:InvokeFunction
+            functionNameSelector:
+              matchControllerRef: true
+            statementId: AllowExecutionFromAPIGateway
+            principal: apigateway.amazonaws.com
+      patches:      
+      - type: PatchSet
+        patchSetName: my-patchset
+    - name: LambdaIamRole
+      base:
+        apiVersion: iam.aws.upbound.io/v1beta1
+        kind: Role
+        spec:
+          forProvider:
+            assumeRolePolicy: |
+              {
+                "Version": "2012-10-17",
+                "Statement": [
+                  {
+                    "Effect": "Allow",
+                    "Principal": {
+                      "Service": "lambda.amazonaws.com"
+                    },
+                    "Action": "sts:AssumeRole"
+                  }
+                ]
+              }
+            inlinePolicy:
+              - name: my_inline_policy
+                policy: |
+                  {
+                    "Version": "2012-10-17",
+                    "Statement": [
+                      {
+                        "Effect": "Allow",
+                        "Resource": "*",
+                        "Action": "*"
+                      }
+                    ]
+                  }
+    - name: LambdaS3
+      base:
+        apiVersion: s3.aws.upbound.io/v1beta1
+        kind: Bucket
+        spec:
+          forProvider:
+      patches:      
+      - type: PatchSet
+        patchSetName: my-patchset

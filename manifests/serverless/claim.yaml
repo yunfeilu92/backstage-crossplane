@@ -1,0 +1,9 @@
+apiVersion: yunfeilu.demo/v1alpha1
+kind: ServerlessClaim
+metadata:
+  name: myserverlessapi
+  namespace: crossplane-demo
+spec:
+  region: US
+  language: python
+  memorySize: small

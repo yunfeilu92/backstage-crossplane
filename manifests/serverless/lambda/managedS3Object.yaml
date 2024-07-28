@@ -1,0 +1,16 @@
+apiVersion: s3.aws.upbound.io/v1beta1
+kind: BucketObject
+metadata:
+  labels: 
+    application: crossplane-lambda
+  name: lambdafunction-code-object
+
+spec:
+  deletionPolicy: Orphan
+  forProvider:
+    region: us-east-1
+    bucketSelector:
+      matchLabels:
+        application: crossplane-lambda
+    key: hello-python.zip
+    content: hello world

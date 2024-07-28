@@ -1,0 +1,10 @@
+apiVersion: s3.aws.upbound.io/v1beta1
+kind: Bucket
+metadata:
+  labels: 
+    application: crossplane-lambda
+  generateName: crossplane-lambda-bucket-
+
+spec:
+  forProvider:
+    region: us-east-1

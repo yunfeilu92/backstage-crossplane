@@ -1,0 +1,54 @@
+# macOS
+*DS_Store
+
+# Logs
+backstage-demo/logs
+*.log
+backstage-demo/npm-debug.log*
+backstage-demo/yarn-debug.log*
+backstage-demo/yarn-error.log*
+backstage-demo/lerna-debug.log*
+
+# Coverage directory generated when running tests with coverage
+backstage-demo/coverage
+
+# Dependencies
+backstage-demo/node_modules/
+
+# Yarn 3 files
+backstage-demo/.pnp.*
+backstage-demo/.yarn/*
+!backstage-demo/.yarn/patches
+!backstage-demo/.yarn/plugins
+!backstage-demo/.yarn/releases
+!backstage-demo/.yarn/sdks
+!backstage-demo/.yarn/versions
+
+# Node version directives
+backstage-demo/.nvmrc
+
+# dotenv environment variables file
+backstage-demo/.env
+backstage-demo/.env.test
+
+# Build output
+backstage-demo/dist
+backstage-demo/dist-types
+
+# Temporary change files created by Vim
+backstage-demo/*.swp
+
+# MkDocs build output
+backstage-demo/site
+
+# Local configuration files
+backstage-demo/*.local.yaml
+
+# Sensitive credentials
+backstage-demo/*-credentials.yaml
+
+# vscode database functionality support files
+backstage-demo/*.session.sql
+
+# E2E test reports
+backstage-demo/e2e-test-report/

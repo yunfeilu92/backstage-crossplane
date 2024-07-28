@@ -1,0 +1,36 @@
+apiVersion: iam.aws.upbound.io/v1beta1
+kind: Role
+metadata:
+  # labels:
+  #   testing.upbound.io/example-name: role
+  labels:
+    application: crossplane-lambda
+  name: crossplane-lambda-role
+  spec:
+    forProvider:
+      assumeRolePolicy: |
+        {
+          "Version": "2012-10-17",
+          "Statement": [
+            {
+              "Effect": "Allow",
+              "Principal": {
+                "Service": "lambda.amazonaws.com"
+              },
+              "Action": "sts:AssumeRole"
+            }
+          ]
+        }
+      inlinePolicy:
+        - name: my_inline_policy
+          policy: |
+            {
+              "Version": "2012-10-17",
+              "Statement": [
+                {
+                  "Effect": "Allow",
+                  "Resource": "*",
+                  "Action": "*"
+                }
+              ]
+            }

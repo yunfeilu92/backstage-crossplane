@@ -1,0 +1,14 @@
+apiVersion: apigateway.aws.upbound.io/v1beta1
+kind: RestAPI
+metadata:
+  labels:
+    application: crossplane-api
+  name: crossplane-api
+spec:
+  forProvider:
+    name: crossplane-api
+    region: us-east-1
+
+
+
+

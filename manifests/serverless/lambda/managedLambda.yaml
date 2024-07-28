@@ -1,0 +1,24 @@
+apiVersion: lambda.aws.upbound.io/v1beta1
+kind: Function
+metadata:
+  name: crossplane-function  
+spec:
+  forProvider:
+    handler: index.py
+    packageType: Zip
+    region: us-east-1
+    # roleSelector:
+    #   matchLabels:
+    #     application: crossplane-lambda
+    roleRef:
+      name: crossplane-lambda-role
+    runtime: python3.9
+    memorySize: 128
+    roleSelector:
+      matchLabels:
+        application: crossplane-lambda
+    s3BucketSelector: 
+      matchLabels: 
+        application: crossplane-lambda
+    s3Key: lambda-code.zip
+    timeout: 60

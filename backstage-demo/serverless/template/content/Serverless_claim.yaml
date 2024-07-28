@@ -1,0 +1,9 @@
+apiVersion: yunfeilu.demo/v1alpha1
+kind: ServerlessClaim
+metadata:
+  name: ${{ values.appName }}
+  namespace: crossplane-demo
+spec:
+  region: ${{ values.region }}
+  language: ${{ values.appLanguage }}
+  memorySize: ${{ values.appSize }}

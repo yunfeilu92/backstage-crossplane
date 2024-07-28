@@ -1,0 +1,47 @@
+apiVersion: apiextensions.crossplane.io/v1
+kind: CompositeResourceDefinition
+metadata:
+  name: serverlesses.yunfeilu.demo
+spec:
+  defaultCompositionRef: 
+    name: apigateway
+  group: yunfeilu.demo
+  names:
+    kind: Serverless
+    plural: serverlesses
+  claimNames:
+    kind: ServerlessClaim
+    plural: serverlessclaims
+  versions:
+    - name: v1alpha1
+      served: true
+      referenceable: true
+      schema:
+        openAPIV3Schema:
+          type: object
+          properties:
+            spec:
+              type: object
+              properties:
+                language:
+                  type: string
+                  enum: [java, python, nodejs]
+                memorySize:
+                  type: string
+                  enum: [small, medium, large]
+                region:
+                  type: string
+                  enum: [US, EU]
+              required:
+                - language
+                - memorySize
+                - region
+            status:
+              type: object
+              properties: 
+                rootResourceId: 
+                  description: resourceId for root resource
+                  type: string
+                apiEndpoint:
+                  description: api endpoint for API Gateway
+                  type: string
